@@ -104,6 +104,7 @@ biosubmit check GSE123456_family.soft --export-context audit_context.json
 |---|---|---|---|
 | **R101** | Syntax | ERROR | Duplicate entity IDs across series or samples |
 | **R102** | Syntax | WARNING | Malformed characteristic keys or empty values |
+| **R200** | MINSEQE | ERROR | Missing or empty sample identifier |
 | **R201** | MINSEQE | ERROR | Missing required sample title |
 | **R202** | MINSEQE | ERROR | Missing required organism specification |
 | **R203** | MINSEQE | WARNING | Missing recommended `source_name` (tissue/cell description) |
