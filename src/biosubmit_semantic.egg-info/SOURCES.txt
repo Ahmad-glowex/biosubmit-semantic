@@ -19,4 +19,3 @@ tests/test_context.py
 tests/test_ols.py
 tests/test_parser.py
 tests/test_rules.py
-tests/test_scope.py

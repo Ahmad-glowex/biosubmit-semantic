@@ -72,6 +72,32 @@ def test_r102_malformed_characteristics_negative() -> None:
 
 # --- Category 2: MINSEQE & Mandatory Core Fields ---
 
+def test_r200_missing_id_positive() -> None:
+    """R200 flags missing or blank sample identifier with ERROR."""
+    s1 = _make_sample(id="")
+    findings1 = rules.r200_missing_id(samples=[s1])
+    assert len(findings1) == 1
+    assert findings1[0].rule_id == "R200"
+    assert findings1[0].severity == "ERROR"
+    assert findings1[0].category == "minseqe"
+    assert findings1[0].entity_id == "<unknown>"
+    assert "missing" in findings1[0].message.lower() and "identifier" in findings1[0].message.lower()
+
+    # Also test whitespace-only id
+    s2 = _make_sample(id="   ")
+    findings2 = rules.r200_missing_id(samples=[s2])
+    assert len(findings2) == 1
+    assert findings2[0].rule_id == "R200"
+    assert findings2[0].severity == "ERROR"
+    assert findings2[0].entity_id == "<unknown>"
+
+
+def test_r200_missing_id_negative() -> None:
+    """R200 passes when sample identifier is present."""
+    s = _make_sample(id="GSM1001")
+    assert rules.r200_missing_id(samples=[s]) == []
+
+
 def test_r201_missing_title_positive() -> None:
     """R201 flags missing or blank sample title with ERROR."""
     s = _make_sample(title="")
@@ -228,6 +254,27 @@ def test_r305_junk_placeholder_negative_sanctioned_token() -> None:
     s = _make_sample(characteristics={"tissue": ["not applicable"], "cell_type": ["not collected"]})
     findings = rules.r305_junk_placeholder(samples=[s])
     assert findings == []
+
+
+def test_r305_junk_placeholder_na_vs_not_applicable() -> None:
+    """R305 flags casual 'N/A' and 'na' as junk placeholders but accepts formal 'not applicable'."""
+    s1 = _make_sample(id="GSM1", characteristics={"treatment": ["N/A"]})
+    findings1 = rules.r305_junk_placeholder(samples=[s1])
+    assert len(findings1) == 1
+    assert findings1[0].rule_id == "R305"
+    assert findings1[0].severity == "WARNING"
+    assert "N/A" in findings1[0].message
+
+    s2 = _make_sample(id="GSM2", characteristics={"treatment": ["na"]})
+    findings2 = rules.r305_junk_placeholder(samples=[s2])
+    assert len(findings2) == 1
+    assert findings2[0].rule_id == "R305"
+    assert findings2[0].severity == "WARNING"
+    assert "na" in findings2[0].message
+
+    s3 = _make_sample(id="GSM3", characteristics={"treatment": ["not applicable"]})
+    findings3 = rules.r305_junk_placeholder(samples=[s3])
+    assert findings3 == []
 
 
 # --- Category 4: Cohort & Experimental Design QC ---

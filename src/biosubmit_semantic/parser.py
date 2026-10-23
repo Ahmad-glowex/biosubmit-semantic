@@ -189,23 +189,17 @@ def _parse_lines(lines: Iterator[str]) -> Iterator[SeriesRecord | SampleRecord]:
                 current_sample.title = value
             elif tag_lower.startswith("!sample_supplementary_file"):
                 current_sample.protocols.setdefault("supplementary_files", []).append(value)
-            elif tag_lower.endswith("_ch2"):
-                # Channel 2 variants: store under characteristics preserving the _ch2 suffix
-                if tag_lower.startswith("!sample_characteristics"):
+            elif tag_lower.startswith("!sample_characteristics"):
+                suffix = tag_lower[len("!sample_characteristics"):]
+                if suffix.startswith("_") and suffix[1:] != "ch1":
+                    ch_suffix = suffix[1:]
                     if ":" in value:
                         ckey, _, cval = value.partition(":")
-                        clean_key = f"{ckey.strip().lower()}_ch2"
+                        clean_key = f"{ckey.strip().lower()}_{ch_suffix}"
                         current_sample.characteristics.setdefault(clean_key, []).append(cval.strip())
                     else:
-                        current_sample.characteristics.setdefault("characteristics_ch2", []).append(value)
+                        current_sample.characteristics.setdefault(f"characteristics_{ch_suffix}", []).append(value)
                 else:
-                    attr_name = tag_lower[len("!sample_"):]
-                    current_sample.characteristics.setdefault(attr_name, []).append(value)
-            else:
-                proto_key = _normalize_protocol_key(tag)
-                if proto_key:
-                    current_sample.protocols.setdefault(proto_key, []).append(value)
-                elif tag_lower in {"!sample_characteristics", "!sample_characteristics_ch1"}:
                     if ":" in value:
                         ckey, _, cval = value.partition(":")
                         clean_key = ckey.strip().lower()
@@ -213,6 +207,10 @@ def _parse_lines(lines: Iterator[str]) -> Iterator[SeriesRecord | SampleRecord]:
                         current_sample.characteristics.setdefault(clean_key, []).append(clean_val)
                     else:
                         current_sample.characteristics.setdefault("_free_text", []).append(value)
+            else:
+                proto_key = _normalize_protocol_key(tag)
+                if proto_key:
+                    current_sample.protocols.setdefault(proto_key, []).append(value)
                 elif tag_lower in {"!sample_source_name", "!sample_source_name_ch1"}:
                     current_sample.source_name = value
                 elif tag_lower in {"!sample_organism", "!sample_organism_ch1"}:
@@ -231,7 +229,7 @@ def _parse_lines(lines: Iterator[str]) -> Iterator[SeriesRecord | SampleRecord]:
                     current_sample.instrument_model = value
                 else:
                     attr_name = tag_lower[len("!sample_"):]
-                    current_sample.characteristics.setdefault(attr_name, []).append(value)
+                    current_sample.attributes.setdefault(attr_name, []).append(value)
             continue
 
     if current_sample is not None:

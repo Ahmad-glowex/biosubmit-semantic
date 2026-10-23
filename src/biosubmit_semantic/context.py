@@ -101,6 +101,17 @@ def _extract_sample_id(sample: Any, index: int | None = None) -> str:
     return f"sample_{index}" if index is not None else "unknown"
 
 
+def _extract_sample_title(sample: Any) -> str:
+    """Safely extract sample title."""
+    if sample is None:
+        return ""
+    if isinstance(sample, dict):
+        val = sample.get("title", "")
+    else:
+        val = getattr(sample, "title", "")
+    return str(val).strip() if val is not None else ""
+
+
 def build_semantic_audit_context(
     series: SeriesRecord | None = None,
     samples: list[SampleRecord] | None = None,
@@ -118,13 +129,19 @@ def build_semantic_audit_context(
         deterministic_findings, and grant_note.
     """
     # 1. Study narrative: study-level text & sample-level protocol declarations
+    series_id = ""
+    series_title = ""
     series_summary = ""
     overall_design = ""
     if series is not None:
         if isinstance(series, dict):
+            series_id = str(series.get("id", "") or "").strip()
+            series_title = str(series.get("title", "") or "").strip()
             series_summary = str(series.get("summary", "") or "").strip()
             overall_design = str(series.get("overall_design", "") or "").strip()
         else:
+            series_id = str(getattr(series, "id", "") or "").strip()
+            series_title = str(getattr(series, "title", "") or "").strip()
             series_summary = str(getattr(series, "summary", "") or "").strip()
             overall_design = str(getattr(series, "overall_design", "") or "").strip()
 
@@ -134,13 +151,17 @@ def build_semantic_audit_context(
     if samples:
         for idx, s in enumerate(samples):
             sid = _extract_sample_id(s, idx)
+            stitle = _extract_sample_title(s)
             sample_protocols[sid] = _extract_sample_protocols(s)
             sample_matrix.append({
                 "sample_id": sid,
+                "sample_title": stitle,
                 "factors": _extract_sample_factors(s),
             })
 
     study_narrative: dict[str, Any] = {
+        "series_id": series_id,
+        "series_title": series_title,
         "series_summary": series_summary,
         "overall_design": overall_design,
         "sample_protocols": sample_protocols,

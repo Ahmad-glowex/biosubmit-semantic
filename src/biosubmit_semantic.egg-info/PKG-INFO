@@ -1,11 +1,11 @@
 Metadata-Version: 2.4
 Name: biosubmit-semantic
-Version: 0.1.0
-Summary: Rule-based pre-flight auditor for functional genomics metadata (GEO/SRA sample attributes)
+Version: 0.2.0
+Summary: Rule-based pre-flight auditor for GEO sample metadata (SOFT format)
 Author: Tashfiqur Rahman Sabbir
 License: MIT
 Project-URL: Homepage, https://github.com/Ahmad-glowex/biosubmit-semantic
-Keywords: bioinformatics,GEO,SRA,metadata,quality-control
+Keywords: bioinformatics,GEO,metadata,quality-control
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Topic :: Scientific/Engineering :: Bio-Informatics

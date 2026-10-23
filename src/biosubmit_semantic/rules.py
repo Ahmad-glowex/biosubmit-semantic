@@ -1,8 +1,8 @@
-"""Tiered rule-based auditing engine for GEO/SRA functional genomics metadata.
+"""Tiered rule-based auditing engine for GEO functional genomics metadata.
 
 Organized into four strict audit categories:
 1. Syntax & record integrity (R101 - R102)
-2. MINSEQE & mandatory core fields (R201 - R205)
+2. MINSEQE & mandatory core fields (R200 - R205)
 3. Controlled vocabulary & standards (R301 - R305)
 4. Cohort & experimental design QC (R401 - R402)
 
@@ -197,6 +197,34 @@ def r102_malformed_characteristics(
 # ---------------------------------------------------------------------------
 # Category 2: MINSEQE & Mandatory Core Fields
 # ---------------------------------------------------------------------------
+
+def r200_missing_id(
+    series: SeriesRecord | None = None,
+    samples: list[SampleRecord] | None = None,
+) -> list[Finding]:
+    """R200 (ERROR): Flag missing or empty sample identifier."""
+    _, sample_list = _normalize_rule_args(series, samples)
+    findings: list[Finding] = []
+
+    for s in sample_list:
+        sid = ""
+        if s is not None:
+            if isinstance(s, dict):
+                sid = str(s.get("id", "") or "").strip()
+            else:
+                sid = str(getattr(s, "id", "") or "").strip()
+        if not sid:
+            findings.append(
+                Finding(
+                    rule_id="R200",
+                    severity="ERROR",
+                    category="minseqe",
+                    entity_id="<unknown>",
+                    message="Sample is missing required sample identifier.",
+                )
+            )
+    return findings
+
 
 def r201_missing_title(
     series: SeriesRecord | None = None,
@@ -608,6 +636,7 @@ CATEGORY_1_RULES: list[Callable[..., list[Finding]]] = [
 ]
 
 CATEGORY_2_RULES: list[Callable[..., list[Finding]]] = [
+    r200_missing_id,
     r201_missing_title,
     r202_missing_organism,
     r203_missing_source_name,

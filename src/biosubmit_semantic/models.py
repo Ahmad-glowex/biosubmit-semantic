@@ -73,6 +73,7 @@ class SampleRecord:
     instrument_model: str = ""
     protocols: dict[str, list[str]] = field(default_factory=dict)
     characteristics: dict[str, list[str]] = field(default_factory=dict)
+    attributes: dict[str, list[str]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         # Normalize characteristics to ensure dict of lists
@@ -99,12 +100,31 @@ class SampleRecord:
                     normalized_protos[k] = [str(v)]
             self.protocols = normalized_protos
 
+        # Normalize attributes to ensure dict of lists
+        if self.attributes:
+            normalized_attrs: dict[str, list[str]] = {}
+            for k, v in self.attributes.items():
+                if isinstance(v, str):
+                    normalized_attrs[k] = [v]
+                elif isinstance(v, (list, tuple)):
+                    normalized_attrs[k] = [str(item) for item in v]
+                else:
+                    normalized_attrs[k] = [str(v)]
+            self.attributes = normalized_attrs
+
     def add_characteristic(self, key: str, value: str) -> None:
         """Append a value to a characteristic key without clobbering existing values."""
         key_stripped = key.strip()
         if not key_stripped:
             return
         self.characteristics.setdefault(key_stripped, []).append(value.strip())
+
+    def add_attribute(self, key: str, value: str) -> None:
+        """Append a value to an attribute key without clobbering existing values."""
+        key_stripped = key.strip()
+        if not key_stripped:
+            return
+        self.attributes.setdefault(key_stripped, []).append(value.strip())
 
     def add_protocol(self, protocol_type: str, text: str) -> None:
         """Append a protocol entry."""
@@ -141,6 +161,7 @@ class SampleRecord:
             "instrument_model": self.instrument_model,
             "protocols": self.protocols,
             "characteristics": self.characteristics,
+            "attributes": self.attributes,
         }
 
     @classmethod
@@ -159,6 +180,7 @@ class SampleRecord:
             instrument_model=str(data.get("instrument_model", "")),
             protocols=data.get("protocols", {}) or {},
             characteristics=data.get("characteristics", {}) or {},
+            attributes=data.get("attributes", {}) or {},
         )
 
     def __getitem__(self, item: str) -> Any:

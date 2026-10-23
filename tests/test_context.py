@@ -56,6 +56,8 @@ def test_build_semantic_audit_context_keys_and_grant_note() -> None:
 
     # 3. Assert study narrative fields
     narrative = ctx["study_narrative"]
+    assert narrative["series_id"] == "GSE5000"
+    assert narrative["series_title"] == "Hepatic Transcriptomics"
     assert narrative["series_summary"] == "Transcriptional changes in mouse hepatocytes."
     assert narrative["overall_design"] == "RNA-seq across control and treated groups."
     assert "GSM5001" in narrative["sample_protocols"]
@@ -67,8 +69,10 @@ def test_build_semantic_audit_context_keys_and_grant_note() -> None:
     matrix = ctx["sample_matrix"]
     assert len(matrix) == 2
     assert matrix[0]["sample_id"] == "GSM5001"
+    assert matrix[0]["sample_title"] == "Control Hepatocytes Rep 1"
     assert matrix[0]["factors"]["treatment"] == ["vehicle"]
     assert matrix[1]["sample_id"] == "GSM5002"
+    assert matrix[1]["sample_title"] == "Treated Hepatocytes Rep 1"
     assert matrix[1]["factors"]["treatment"] == ["inhibitor_A"]
 
     # 5. Assert deterministic findings
@@ -86,9 +90,13 @@ def test_build_semantic_audit_context_keys_and_grant_note() -> None:
 
 def test_export_semantic_audit_context_json() -> None:
     """Ensure export_semantic_audit_context_json produces valid formatted JSON."""
-    series = SeriesRecord(id="GSE1")
-    s = SampleRecord(id="GSM1")
+    series = SeriesRecord(id="GSE1", title="Liver Study")
+    s = SampleRecord(id="GSM1", title="Liver Rep 1")
     json_str = export_semantic_audit_context_json(series, [s], [])
     data = json.loads(json_str)
     assert "study_narrative" in data
+    assert data["study_narrative"]["series_id"] == "GSE1"
+    assert data["study_narrative"]["series_title"] == "Liver Study"
+    assert data["sample_matrix"][0]["sample_id"] == "GSM1"
+    assert data["sample_matrix"][0]["sample_title"] == "Liver Rep 1"
     assert "PROPOSED" in data["grant_note"]

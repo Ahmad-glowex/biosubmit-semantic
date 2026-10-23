@@ -141,6 +141,8 @@ JUNK_PLACEHOLDERS: frozenset[str] = frozenset({
     "-",
     "none",
     "null",
+    "n/a",
+    "na",
 })
 
 # 7. Controlled Biological Sex Values
