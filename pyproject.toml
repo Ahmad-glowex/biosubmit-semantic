@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "biosubmit-semantic"
-version = "0.1.0"
-description = "Rule-based pre-flight auditor for functional genomics metadata (GEO/SRA sample attributes)"
+version = "0.2.0"
+description = "Rule-based pre-flight auditor for GEO sample metadata (SOFT format)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
