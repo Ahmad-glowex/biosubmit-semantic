@@ -1,0 +1,2 @@
+[console_scripts]
+biosubmit = biosubmit_semantic.cli:main

@@ -1,0 +1,17 @@
+^SAMPLE = GSM900001
+!Sample_title = liver control rep1
+!Sample_organism = Homo sapiens
+!Sample_characteristics = tissue: liver
+!Sample_characteristics = sex: male
+!Sample_characteristics = treatment: control
+^SAMPLE = GSM900002
+!Sample_title = liver control rep2
+!Sample_organism = Homo sapiens
+!Sample_characteristics = tissue: liver
+!Sample_characteristics = sex: M
+!Sample_characteristics = treatment: N/A
+^SAMPLE = GSM900002
+!Sample_title =
+!Sample_organism = Homo sapiens
+!Sample_characteristics = tissue:
+!Sample_characteristics = sex: female
